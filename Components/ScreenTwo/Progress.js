@@ -20,8 +20,8 @@ const Progress = () => {
 
 
   const [value, setValue] = React.useState(0)
-  const [runningDuration, setRunningDuration] = React.useState(0.00)
-  const [durationTotal, setTotalDuration] = React.useState(0.00)
+  const [runningDuration, setRunningDuration] = React.useState("0:00")
+  const [durationTotal, setTotalDuration] = React.useState("0:00")
   const { position, duration } = useTrackPlayerProgress(1000)
 
 
@@ -32,15 +32,38 @@ const Progress = () => {
 
 
   React.useEffect(() => {
-    let a, b, c, d, e, f, g, h, i
+    let a, b, c, d, e, f, g, h, i, j, k
     a = (position / 60).toString()
     b = a.slice(a.indexOf('.'))
     c = Math.floor(Number(b) * 60)
-    d = `${Math.floor(Number(a))}:${c}`
     e = (duration / 60).toString()
     f = e.slice(a.indexOf('.'))
+    if (Math.floor(Number(a)).toLocaleString().length === 1) {
+      k = `0${Math.floor(Number(a))}`
+    }
+    if (Math.floor(Number(a)).toLocaleString().length >= 2) {
+      k = `${Math.floor(Number(a))}`
+    }
+    if (c.toLocaleString().length === 1) {
+      d = `${k}:0${c}`
+    }
+    if (c.toLocaleString().length >= 2) {
+      d = `${k}:${c}`
+    }
+
+    if (Math.floor(Number(e)).toLocaleString().length === 1) {
+      j = `0${Math.floor(Number(e))}`
+    }
+    if (Math.floor(Number(e)).toLocaleString().length >= 2) {
+      j = `${Math.floor(Number(e))}`
+    }
     g = Math.floor(Number(f) * 60)
-    h = `${Math.floor(Number(e))}:${g}`
+    if (g.toLocaleString().length === 1) {
+      h = `${Math.floor(Number(e))}:0${g}`
+    }
+    if (g.toLocaleString().length >= 2) {
+      h = `${j}:${g}`
+    }
     i = position / duration
     setValue(i)
     setRunningDuration(d)

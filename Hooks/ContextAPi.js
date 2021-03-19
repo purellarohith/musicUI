@@ -10,18 +10,21 @@ export const DataApi = React.createContext();
 export const MetaData = React.createContext();
 export const ImageApi = React.createContext();
 export const CurrentSong = React.createContext();
+export const Loaded = React.createContext();
+
 
 const ContextAPi = ({ children }) => {
 
   const [data, setData] = React.useState([])
   const [metaData, setMetaData] = React.useState([])
-  const [currentSong, setCurrentSong] = React.useState({ index: null, isPlaying: false, image: imageUri ,name:'',artist:'' })
-
+  const [currentSong, setCurrentSong] = React.useState({ index: null, isPlaying: false, image: imageUri, name: '', artist: '',endLength:'' })
+  const [isLoaded, setLoaded] = React.useState(false)
   React.useEffect(() => {
     (async () => {
       await androidCheckPermission(
         PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
         setData,
+        setLoaded
       );
     })();
   }, [])
@@ -30,6 +33,7 @@ const ContextAPi = ({ children }) => {
 
   return (
     <>
+    <Loaded.Provider value = {[isLoaded, setLoaded]} >
       <DataApi.Provider value={[data, setData]}>
         <MetaData.Provider value={[metaData, setMetaData]}>
           <CurrentSong.Provider value={[currentSong, setCurrentSong]}>
@@ -37,6 +41,7 @@ const ContextAPi = ({ children }) => {
           </CurrentSong.Provider>
         </MetaData.Provider>
       </DataApi.Provider>
+    </Loaded.Provider>
     </>
   )
 }

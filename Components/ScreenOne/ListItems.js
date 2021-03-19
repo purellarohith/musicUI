@@ -51,9 +51,9 @@ const ListItems = ({ data }) => {
         TrackPlayer.getCurrentTrack().then((current) => {
           TrackPlayer.getTrack(current).then((res) => {
             if (res.artwork.startsWith('http')) {
-              setCurrentSong({ ...currentSong, index: Number(res.id), isPlaying: true, image: res.artwork, name: res.title, artist: res.artist })
+              setCurrentSong({ ...currentSong, index: Number(res.id), isPlaying: true, image: res.artwork, name: res.title, artist: res.artist, endLength: data.length })
             } else {
-              setCurrentSong({ ...currentSong, index: Number(res.id), isPlaying: true, image: "data:image/png;base64," + res.artwork, name: res.title, artist: res.artist })
+              setCurrentSong({ ...currentSong, index: Number(res.id), isPlaying: true, image: "data:image/png;base64," + res.artwork, name: res.title, artist: res.artist, endLength: data.length })
             }
           });
         });
@@ -73,7 +73,6 @@ const ListItems = ({ data }) => {
         }
       }
       if (state === 1) {
-        console.log("olllallalla");
         ToastAndroid.showWithGravity(
           'PlayBack In List Have Completed...',
           5000,
@@ -90,9 +89,9 @@ const ListItems = ({ data }) => {
   //Hooks
 
   const PlayerController = (item, index, fuctionType) => {
-
-    console.log(item)
-
+    // console.log(item)
+    console.log(`index => ${index}`);
+    console.log(`currentSong.index => ${currentSong.index}`);
     if (fuctionType === 'play') {
       // setSong({ ...song, index: index, isPlaying: true })
       if (currentSong.index === index) {
@@ -145,23 +144,24 @@ const ListItems = ({ data }) => {
           <View>
             <TouchableOpacity
               onPress={() => {
-                index === currentSong.index && currentSong.isPlaying === true ? PlayerController(item, index, "pause") : PlayerController(item, index, "play")}}
-                  >
-                  <Neomorph
-                    inner // <- enable shadow inside of Neomorph
-                    swapShadows // <- change zIndex of each shadow color
-                    style={
-                      { ...styles.icon, backgroundColor: activeColor }
-                    }>
-                    {/* <currentSongIcon name={item.iconsChange ? 'play' : 'pause'} size={20} /> */}
-                    <SongIcon
-                      name={
-                        activeButton
-                      }
-                      color={activeIconColor}
-                      size={20}
-                    />
-                  </Neomorph>
+                index === currentSong.index && currentSong.isPlaying === true ? PlayerController(item, index, "pause") : PlayerController(item, index, "play")
+              }}
+            >
+              <Neomorph
+                inner // <- enable shadow inside of Neomorph
+                swapShadows // <- change zIndex of each shadow color
+                style={
+                  { ...styles.icon, backgroundColor: activeColor }
+                }>
+                {/* <currentSongIcon name={item.iconsChange ? 'play' : 'pause'} size={20} /> */}
+                <SongIcon
+                  name={
+                    activeButton
+                  }
+                  color={activeIconColor}
+                  size={20}
+                />
+              </Neomorph>
             </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -177,6 +177,17 @@ const ListItems = ({ data }) => {
         data={data}
         renderItem={renderItems}
         contentContainerStyle={{ padding: 6 }}
+        // ItemSeparatorComponent={lineSuparator}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        // pagingEnabled={true}
+        bounces={false}
+        decelerationRate="fast"
+        scrollEventThrottle={6}
+      // refreshControl
+      // onRefresh
+      // refreshing
+      // fadingEdgeLength={1}
       />
     </View>
   )

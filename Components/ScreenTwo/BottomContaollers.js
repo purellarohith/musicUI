@@ -25,10 +25,19 @@ const BottomContaollers = () => {
     TrackPlayer.skipToPrevious()
   }
 
+  
+  
+
+
+  const prevState = currentSong.index === null || currentSong.index - 1 <= 0 ? true : false;
+  const nextState = currentSong.index === null || currentSong.endLength - 1 == currentSong.index ? true : false;
+
   return (
     <View style={styles.mainContainer}>
       <View>
-        <TouchableOpacity onPress={() => prevButtonhandler()} >
+        <TouchableOpacity
+          disabled={prevState}
+          onPress={() => prevButtonhandler()} >
           <Neomorph
             inner // <- enable shadow inside of Neomorph
             swapShadows // <- change zIndex of each shadow color
@@ -58,7 +67,9 @@ const BottomContaollers = () => {
         </TouchableOpacity>
       </View>
       <View>
-        <TouchableOpacity onPress={() => nextButtonhandler()}>
+        <TouchableOpacity
+          disabled={nextState}
+          onPress={() => nextButtonhandler()}>
           <Neomorph
             inner // <- enable shadow inside of Neomorph
             swapShadows // <- change zIndex of each shadow color

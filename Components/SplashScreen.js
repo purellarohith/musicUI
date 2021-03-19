@@ -11,14 +11,13 @@ import { spalshImage, width } from './constants';
 
 const SplashScreen = ({ navigation }) => {
   const [data, setData] = React.useContext(DataApi);
-  const [metaData, setMetaData] = React.useContext(MetaData);
-
+  // const [metaData, setMetaData] = React.useContext(MetaData);
+  
   React.useEffect(() => {
-    console.log("DAta",data.length);
-    if (data.length > 0) {
+    setTimeout(() => {
       navigation.replace('screenOne')
-    }
-  }, [data])
+    }, 750)
+  }, [])
 
   return (
     <SafeAreaView style={Styles.SplashMain}>

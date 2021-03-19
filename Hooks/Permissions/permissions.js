@@ -1,11 +1,12 @@
 import { Alert, ToastAndroid, Linking } from "react-native";
 import { check, request, RESULTS } from "react-native-permissions"
 import RNFS from 'react-native-fs';
-import TrackPlayer from 'react-native-track-player'
 import MediaMeta from 'react-native-media-meta';
+import TrackPlayer from 'react-native-track-player';
+import { imageUri } from "../../Components/constants";
+import { BackHandler } from "react-native";
 
-
-export const androidCheckPermission = (permission, setState) => {
+export const androidCheckPermission = (permission, setState, setLoaded) => {
   check(permission).then((res) => {
     console.log(res)
     switch (res) {
@@ -17,7 +18,7 @@ export const androidCheckPermission = (permission, setState) => {
             [
               {
                 text: 'Cancel',
-                onPress: () => console.log('Canceled'),
+                onPress: () => BackHandler.exitApp(),
                 style: 'cancel',
               },
               {
@@ -38,7 +39,7 @@ export const androidCheckPermission = (permission, setState) => {
             [
               {
                 text: 'Cancel',
-                onPress: () => console.log('Canceled'),
+                onPress: () => BackHandler.exitApp(),
                 style: 'cancel',
               },
               {
@@ -47,7 +48,13 @@ export const androidCheckPermission = (permission, setState) => {
                   request(permission).then((PR) => {
                     if (PR === RESULTS.GRANTED) {
                       ToastAndroid.showWithGravityAndOffset("Permission Granted", 500, ToastAndroid.BOTTOM, 0, 80)
-                      FileReader(RNFS.ExternalStorageDirectoryPath, setState)
+                      FileReader(RNFS.ExternalStorageDirectoryPath, setState, setLoaded)
+                    }
+                    if (PR === RESULTS.DENIED) {
+                      BackHandler.exitApp()
+                    }
+                    if (PR === RESULTS.BLOCKED) {
+                      BackHandler.exitApp()
                     }
                     // console.log(PR)
                   }).catch(err => console.log(err));
@@ -92,7 +99,7 @@ export const androidCheckPermission = (permission, setState) => {
       case RESULTS.GRANTED:
         {
           ToastAndroid.showWithGravityAndOffset("Permission Granted", 500, ToastAndroid.BOTTOM, 0, 80)
-          FileReader(RNFS.ExternalStorageDirectoryPath, setState)
+          FileReader(RNFS.ExternalStorageDirectoryPath, setState, setLoaded)
         }
 
         break;
@@ -104,72 +111,128 @@ export const androidCheckPermission = (permission, setState) => {
   })
 }
 
-let loadinga = 0;
 
-const loading = () => {
-  ToastAndroid.showWithGravityAndOffset(`Loading${loadinga}`, 500, ToastAndroid.BOTTOM, 0, 80)
-  loadinga++
+const playerData = async (data) => {
+  await TrackPlayer.setupPlayer({})
+  await TrackPlayer.updateOptions({
+    stopWithApp: true,
+    capabilities: [
+      TrackPlayer.CAPABILITY_PLAY,
+      TrackPlayer.CAPABILITY_PAUSE,
+      TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+      TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+      // TrackPlayer.CAPABILITY_STOP,
+    ],
+    // compactCapabilities: [
+    //   TrackPlayer.CAPABILITY_PLAY,
+    //   TrackPlayer.CAPABILITY_PAUSE,
+    //   TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+    //   TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+    // TrackPlayer.CAPABILITY_STOP,
+    // ],
+  });
+  await TrackPlayer.reset()
+  await TrackPlayer.add(data)
+
 }
 
 
 
-
-
-
-export const FileReader = (mainFolder, setState) => {
-
-  let image = "https://images.unsplash.com/photo-1607304021641-5cd8b6f6f894?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
-
+export const FileReader = async (mainFolder, setState, setLoaded) => {
   let dummyArray = [];
   let dummyreqArray = [];
   let dummyMetaData = [];
-  let dummyFinalData = [];
   let dummyTrackData = [];
-  let testArray = [];
-  RNFS.readDir(mainFolder)
+  let dummyFinalData = [];
+  let final = [];
+  await RNFS.readDir(mainFolder)
     .then((res) => {
-
-      for (let a = 0; a <= res.length - 1; a++) {
-        dummyArray[a] = res[a]
-      }
+      [...dummyArray] = [...res]
     }
     ).then(async () => {
-      let length = 0;
-      do {
-        length = dummyArray.length
-        for (let a = 0; a <= dummyArray.length - 1; a++) {
-
-          if (dummyArray[a].isDirectory()) {
-            await RNFS.readDir(dummyArray[a].path).then((res) => {
-              try {
-                if (res.length > 0) {
-                  for (let b of res) {
-                    testArray.push(b)
+      // console.table(dummyArray);
+    }).then(async () => {
+      if (Array.isArray(dummyArray)) {
+        for (let a of dummyArray) {
+          // console.log(dummyArray.length);
+          if (a.isDirectory()) {
+            let check = await RNFS.readDir(a.path)
+            if (Array.isArray(check)) {
+              for (let b of check) {
+                if (b.isDirectory()) {
+                  dummyArray.push(b)
+                }
+                if (b.isFile()) {
+                  if (b.path.endsWith('.mp3')) {
+                    dummyreqArray.push(b)
                   }
                 }
-              } catch (error) {
-                console.log("errrororor");
-              }
-            })
-          }
-          if (a === dummyArray.length - 1) {
-            if (testArray.length > 0) {
-              for (let d = 0; d <= testArray.length - 1; d++) {
-                dummyArray[dummyArray.length + d] = testArray[d]
               }
             }
           }
+          if (a.isFile()) {
+            if (a.path.endsWith('.mp3')) {
+              dummyreqArray.push(a)
+            }
+          }
         }
-        console.log(" tes:", testArray.length);
-        console.log("dumm :", dummyArray.length);
-        console.log(" len:", length);
-
-      } while (length !== dummyArray.length)
-
-
+      }
+    }).then(() => {
+      // console.log(dummyArray.length);
+      // console.table(dummyreqArray.length);
+    })
+    .then(async () => {
+      for (let a = 0; a <= dummyreqArray.length - 1; a++) {
+        let something = await MediaMeta.get(dummyreqArray[a].path)
+        dummyMetaData[a] = await something
+      }
+    }).then(() => {
+      // console.table(dummyMetaData);
+      for (let a = 0; a <= dummyMetaData.length - 1; a++) {
+        dummyFinalData[a] = { ...dummyreqArray[a], ...dummyMetaData[a] }
+      }
+    })
+    .then(() => {
+      let TrackLoop = (index, item, mainitem) => {
+        let trackList = {
+          id: index.toString(), // Must be a string, required
+          url: `file://${mainitem.path}`, // Load media from the network , appBundle , Location
+          title: item.title || mainitem.name,
+          artist: item.artist || 'Self',
+          album: item.album || 'while(1<2)',
+          genre: 'Songs',
+          date: mainitem.mtime.toString(), // RFC 3339
+          artwork: item.thumb || imageUri,
+        };
+        dummyTrackData[index] = trackList
+      };
+      for (let a = 0; a <= dummyMetaData.length - 1; a++) {
+        TrackLoop(a, dummyMetaData[a], dummyreqArray[a])
+      }
 
     }).then(() => {
-      console.log(dummyArray.length);
+      // console.table(dummyTrackData);
+      // console.table(dummyFinalData);
+    }).then(async () => {
+      await playerData(dummyTrackData)
+    }).then(() => {
+      console.log("Completed");
+    }).then(() => {
+      if (dummyFinalData.length <= 0) {
+        Alert.alert(
+          'Alert',
+          'No Music Tracks Found ',
+          [
+            {
+              text: 'Ok',
+              style: 'default',
+            },
+          ],
+        );
+      } else {
+        setState(dummyFinalData)
+        setLoaded(true)
+      }
     })
     .catch((err) => {
       console.log(err);

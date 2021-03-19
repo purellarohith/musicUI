@@ -9,7 +9,7 @@ import Progress from './Progress';
 const ScreenTwo = ({ navigation }) => {
   return (
     <View style={styles.mainComponent}>
-      <Header isBack={true} isMenu={true} onPressBack={() => navigation.navigate('screenOne')} onPressMenu={() => alert('Coming Soon...')}>
+      <Header isBack={true} isMenu={true} onPressBack={() => navigation.goBack()} onPressMenu={() => alert('Coming Soon...')}>
         <MiddleScreen />
         <MiddleBelow />
         <Progress />
