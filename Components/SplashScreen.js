@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, ImageBackground, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 
 
-import { DataApi, MetaData } from '../Hooks/ContextAPi';
+import { DataApi, SplashScreenLoading } from '../Hooks/ContextAPi';
 import { spalshImage, width } from './constants';
 
 
@@ -11,13 +11,15 @@ import { spalshImage, width } from './constants';
 
 const SplashScreen = ({ navigation }) => {
   const [data, setData] = React.useContext(DataApi);
-  // const [metaData, setMetaData] = React.useContext(MetaData);
-  
+  const [isSplashLoaded, setSplashLoaded] = React.useContext(SplashScreenLoading);
+
   React.useEffect(() => {
-    setTimeout(() => {
-      navigation.replace('screenOne')
-    }, 750)
-  }, [])
+    if (isSplashLoaded === true) {
+      setTimeout(() => {
+        navigation.replace('screenOne')
+      }, 750)
+    }
+  }, [isSplashLoaded])
 
   return (
     <SafeAreaView style={Styles.SplashMain}>

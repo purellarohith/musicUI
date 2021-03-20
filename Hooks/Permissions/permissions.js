@@ -6,7 +6,7 @@ import TrackPlayer from 'react-native-track-player';
 import { imageUri } from "../../Components/constants";
 import { BackHandler } from "react-native";
 
-export const androidCheckPermission = (permission, setState, setLoaded) => {
+export const androidCheckPermission = (permission, setState, setLoaded, setSplashLoaded) => {
   check(permission).then((res) => {
     console.log(res)
     switch (res) {
@@ -47,6 +47,7 @@ export const androidCheckPermission = (permission, setState, setLoaded) => {
                 onPress: () => {
                   request(permission).then((PR) => {
                     if (PR === RESULTS.GRANTED) {
+                      setSplashLoaded(true)
                       ToastAndroid.showWithGravityAndOffset("Permission Granted", 500, ToastAndroid.BOTTOM, 0, 80)
                       FileReader(RNFS.ExternalStorageDirectoryPath, setState, setLoaded)
                     }
@@ -98,6 +99,7 @@ export const androidCheckPermission = (permission, setState, setLoaded) => {
 
       case RESULTS.GRANTED:
         {
+          setSplashLoaded(true)
           ToastAndroid.showWithGravityAndOffset("Permission Granted", 500, ToastAndroid.BOTTOM, 0, 80)
           FileReader(RNFS.ExternalStorageDirectoryPath, setState, setLoaded)
         }
